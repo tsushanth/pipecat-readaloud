@@ -1,4 +1,4 @@
 from ._client import ReadAloudAPIError
-from .tts import ReadAloudTTSService, ReadAloudTTSSettings
+from .tts import ReadAloudHttpTTSService, ReadAloudTTSService, ReadAloudTTSSettings
 
-__all__ = ["ReadAloudTTSService", "ReadAloudTTSSettings", "ReadAloudAPIError"]
+__all__ = ["ReadAloudHttpTTSService", "ReadAloudTTSService", "ReadAloudTTSSettings", "ReadAloudAPIError"]

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pipecat-readaloud"
-version = "0.1.0"
+version = "0.1.1"
 description = "ReadAloud text-to-speech service for Pipecat (Piper voices, ~200 ms to first audio, 8 kHz telephony output)"
 readme = "README.md"
 requires-python = ">=3.10"

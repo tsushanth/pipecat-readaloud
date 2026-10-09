@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from fake_readaloud import KEY, FakeReadAloud  # noqa: E402
 
 from pipecat.frames.frames import ErrorFrame, TTSAudioRawFrame  # noqa: E402
-from pipecat_readaloud import ReadAloudTTSService  # noqa: E402
+from pipecat_readaloud import ReadAloudHttpTTSService  # noqa: E402
 from pipecat_readaloud._client import g711_to_pcm16  # noqa: E402
 
 
@@ -28,7 +28,7 @@ async def session():
 
 def make(server, session, rate=24000, **kw):
     kw.setdefault("api_key", KEY)
-    svc = ReadAloudTTSService(base_url=server.url, aiohttp_session=session, sample_rate=rate, backoff_base=0.01, **kw)
+    svc = ReadAloudHttpTTSService(base_url=server.url, aiohttp_session=session, sample_rate=rate, backoff_base=0.01, **kw)
     svc._sample_rate = rate  # normally set from StartFrame
     return svc
 
@@ -129,7 +129,7 @@ async def test_barge_in_cancel_closes_connection(server, session):
 
 
 async def test_runtime_voice_and_speed_settings(server, session):
-    svc = make(server, session, settings=ReadAloudTTSService.Settings(voice="af_heart", speed=1.25))
+    svc = make(server, session, settings=ReadAloudHttpTTSService.Settings(voice="af_heart", speed=1.25))
     await collect(svc)
     b = server.requests[0]["body"]
     assert b["voice"] == "af_heart" and b["speed"] == 1.25
@@ -138,7 +138,7 @@ async def test_runtime_voice_and_speed_settings(server, session):
 def test_requires_api_key(monkeypatch):
     monkeypatch.delenv("READALOUD_API_KEY", raising=False)
     with pytest.raises(ValueError):
-        ReadAloudTTSService()
+        ReadAloudHttpTTSService()
 
 
 async def test_mid_stream_failure_no_retry_after_audio(server, session):
@@ -146,3 +146,9 @@ async def test_mid_stream_failure_no_retry_after_audio(server, session):
     assert len(server.requests) == 1              # never replays audio that already started
     assert any(isinstance(f, TTSAudioRawFrame) for f in frames)
     assert any(isinstance(f, ErrorFrame) for f in frames)
+
+
+def test_old_class_name_is_an_alias():
+    import pipecat_readaloud
+
+    assert pipecat_readaloud.ReadAloudTTSService is pipecat_readaloud.ReadAloudHttpTTSService

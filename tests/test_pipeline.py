@@ -14,7 +14,7 @@ from pipecat.pipeline.pipeline import Pipeline  # noqa: E402
 from pipecat.pipeline.runner import PipelineRunner  # noqa: E402
 from pipecat.pipeline.task import PipelineParams, PipelineTask  # noqa: E402
 from pipecat.processors.frame_processor import FrameProcessor  # noqa: E402
-from pipecat_readaloud import ReadAloudTTSService  # noqa: E402
+from pipecat_readaloud import ReadAloudHttpTTSService  # noqa: E402
 
 
 class Sink(FrameProcessor):
@@ -32,7 +32,7 @@ async def _run(text, interrupt_after=None):
     server = await FakeReadAloud().start()
     sink = Sink()
     async with aiohttp.ClientSession() as session:
-        tts = ReadAloudTTSService(api_key=KEY, base_url=server.url, aiohttp_session=session)
+        tts = ReadAloudHttpTTSService(api_key=KEY, base_url=server.url, aiohttp_session=session)
         task = PipelineTask(Pipeline([tts, sink]), params=PipelineParams(audio_out_sample_rate=24000))
 
         async def driver():

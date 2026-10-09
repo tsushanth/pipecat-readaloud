@@ -41,7 +41,7 @@ class ReadAloudTTSSettings(TTSSettings):
     speed: float | None | NotGiven = field(default_factory=lambda: NOT_GIVEN)
 
 
-class ReadAloudTTSService(TTSService):
+class ReadAloudHttpTTSService(TTSService):
     """Pipecat TTS service backed by ReadAloud (https://readaloudai.org).
 
     Args:
@@ -56,7 +56,7 @@ class ReadAloudTTSService(TTSService):
         sample_rate: Pipeline output rate (Pipecat convention). 8000 for Twilio/Telnyx.
         aiohttp_session: Optional shared session. If omitted one is created and closed with the service.
         max_retries: Retries before the first audio byte on capacity / 5xx / connect errors.
-        settings: ``ReadAloudTTSService.Settings(voice="default", speed=1.0)``.
+        settings: ``ReadAloudHttpTTSService.Settings(voice="default", speed=1.0)``.
     """
 
     Settings = ReadAloudTTSSettings
@@ -142,3 +142,7 @@ class ReadAloudTTSService(TTSService):
             # Cancellation (barge-in) lands here as GeneratorExit/CancelledError: drop the connection.
             await stream.aclose()
             await self.stop_ttfb_metrics()
+
+
+# 0.1.0 name, kept so existing imports keep working.
+ReadAloudTTSService = ReadAloudHttpTTSService
