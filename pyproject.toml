@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pipecat-readaloud"
+version = "0.1.0"
+description = "ReadAloud text-to-speech service for Pipecat (Piper voices, ~200 ms to first audio, 8 kHz telephony output)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Sushanth Tiruvaipati" }]
+keywords = ["pipecat", "tts", "text-to-speech", "voice-agent", "readaloud", "piper", "telephony"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Topic :: Multimedia :: Sound/Audio :: Speech",
+  "Typing :: Typed",
+]
+# Tested against pipecat-ai 1.12.0 (TTSService.run_tts(text, context_id), Settings dataclasses).
+# Older 0.0.x releases have a different run_tts signature and are NOT supported.
+dependencies = ["pipecat-ai>=1.12,<2", "aiohttp>=3.9"]
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-asyncio"]
+
+[project.urls]
+Homepage = "https://readaloudai.org"
+Repository = "https://github.com/tsushanth/pipecat-readaloud"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+pipecat_readaloud = ["py.typed"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
