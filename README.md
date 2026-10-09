@@ -52,6 +52,18 @@ export READALOUD_API_KEY=rtts_...
 python examples/readaloud_tts_to_wav.py "Thanks for calling. How can I help you today?"
 ```
 
+## Interruption demo
+
+[`examples/interruption_demo.py`](examples/interruption_demo.py) speaks through your speakers and lets you interrupt it
+with the Enter key, printing what Pipecat and the output transport do. It needs PortAudio (`brew install portaudio` on
+macOS) and `pipecat-ai[local]`:
+
+```bash
+pip install "pipecat-ai[local]" pipecat-readaloud aiohttp
+export READALOUD_API_KEY=rtts_...
+python examples/interruption_demo.py
+```
+
 ## Behaviour
 
 - Audio frames are yielded as bytes arrive, sample-aligned.
