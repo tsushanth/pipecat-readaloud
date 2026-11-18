@@ -4,6 +4,7 @@ import os
 import sys
 
 import aiohttp
+import pytest
 
 sys.path.insert(0, os.path.dirname(__file__))
 from fake_readaloud import KEY, FakeReadAloud  # noqa: E402
@@ -28,12 +29,12 @@ class Sink(FrameProcessor):
         await self.push_frame(frame, direction)
 
 
-async def _run(text, interrupt_after=None):
+async def _run(text, interrupt_after=None, rate=24000):
     server = await FakeReadAloud().start()
     sink = Sink()
     async with aiohttp.ClientSession() as session:
         tts = ReadAloudHttpTTSService(api_key=KEY, base_url=server.url, aiohttp_session=session)
-        task = PipelineTask(Pipeline([tts, sink]), params=PipelineParams(audio_out_sample_rate=24000))
+        task = PipelineTask(Pipeline([tts, sink]), params=PipelineParams(audio_out_sample_rate=rate))
 
         async def driver():
             await task.queue_frame(TTSSpeakFrame(text))
@@ -62,3 +63,14 @@ async def test_pipeline_speak_frame_produces_audio():
 async def test_pipeline_interruption_drops_connection():
     server, sink = await _run("SLOW", interrupt_after=0.4)
     assert server.disconnected.is_set() and server.completed == 0
+
+
+async def test_pipeline_16k_output_is_resampled_with_same_duration():
+    # The pipeline rate is 16 kHz while the service asks the 24 kHz stream (auto). Frames reaching the next processor
+    # must be 16 kHz and cover the same time as the 24 kHz audio the server sent (641 + 2 * 3200 bytes).
+    server, sink = await _run("hello world", rate=16000)
+    audio = [f for f in sink.frames if isinstance(f, TTSAudioRawFrame)]
+    assert server.requests[0]["format"] == "pcm_24000"
+    assert audio and all(f.sample_rate == 16000 and f.num_channels == 1 for f in audio)
+    seconds = sum(len(f.audio) for f in audio) / 2 / 16000
+    assert seconds == pytest.approx((641 + 2 * 3200) / 2 / 24000, rel=0.1)
