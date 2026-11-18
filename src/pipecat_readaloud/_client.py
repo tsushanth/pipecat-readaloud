@@ -88,14 +88,14 @@ def parse_error(status: int, body: bytes, retry_after_header: Optional[str]) -> 
 class RequestConfig:
     api_key: str
     base_url: str = DEFAULT_BASE_URL
-    engine: str = "piper"
+    engine: str = "live"
     output_format: str = "pcm_24000"
     connect_timeout: float = 10.0
     read_timeout: float = 30.0       # max silence between chunks
     max_retries: int = 3             # retries of capacity/5xx/connect errors BEFORE the first audio byte
     backoff_base: float = 0.25
     backoff_cap: float = 4.0
-    user_agent: str = "readaloud-voice-plugins/0.1"
+    user_agent: str = "readaloud-voice-plugins/0.2"
 
     @property
     def sample_rate(self) -> int:
@@ -110,8 +110,8 @@ class RequestConfig:
             raise ValueError("ReadAloud API key missing: pass api_key= or set READALOUD_API_KEY")
         if self.output_format not in SUPPORTED_FORMATS:
             raise ValueError(f"output_format must be one of {sorted(SUPPORTED_FORMATS)}")
-        if self.engine not in ("piper", "kokoro"):
-            raise ValueError("engine must be 'piper' or 'kokoro'")
+        if self.engine not in ("live", "studio"):
+            raise ValueError("engine must be 'live' or 'studio'")
 
 
 def build_request(cfg: RequestConfig, text: str, voice: str, speed: float):
@@ -123,8 +123,8 @@ def build_request(cfg: RequestConfig, text: str, voice: str, speed: float):
                 {"Authorization": f"Bearer {cfg.api_key}", "Content-Type": "application/json", **ua},
                 {"text": text, "voice": voice, "speed": speed, "format": cfg.output_format, "engine": cfg.engine})
     from urllib.parse import quote
-    v = "piper-default" if (voice == "default" and cfg.engine == "piper") else voice
-    model = "eleven_flash_v2_5" if cfg.engine == "piper" else "eleven_multilingual_v2"
+    v = "readaloud-default" if (voice == "default" and cfg.engine == "live") else voice
+    model = "eleven_flash_v2_5" if cfg.engine == "live" else "eleven_multilingual_v2"
     return (f"{base}/v1/text-to-speech/{quote(v, safe='')}/stream?output_format={cfg.output_format}",
             {"xi-api-key": cfg.api_key, "Content-Type": "application/json", **ua},
             {"text": text, "model_id": model, "voice_settings": {"speed": speed}})

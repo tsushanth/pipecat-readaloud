@@ -47,7 +47,7 @@ class ReadAloudHttpTTSService(TTSService):
     Args:
         api_key: ReadAloud API key (``rtts_...``). Falls back to env ``READALOUD_API_KEY``.
         base_url: API origin, default ``https://api.readaloudai.org``.
-        engine: ``"piper"`` (default, ~200 ms to first audio) or ``"kokoro"``.
+        engine: ``"live"`` (default, the low-latency tier) or ``"studio"`` (the higher-priced narration tier).
         output_format: ``"auto"`` (default) or one of ``pcm_24000, pcm_8000, mulaw_8000, alaw_8000,
             pcm_16000``. ``auto`` asks for the rate closest to the pipeline's output rate that the
             native endpoint produces (8000 -> ``pcm_8000``, everything else ``pcm_24000``) and lets
@@ -62,7 +62,7 @@ class ReadAloudHttpTTSService(TTSService):
     Settings = ReadAloudTTSSettings
     _settings: Settings
 
-    def __init__(self, *, api_key: Optional[str] = None, base_url: str = DEFAULT_BASE_URL, engine: str = "piper",
+    def __init__(self, *, api_key: Optional[str] = None, base_url: str = DEFAULT_BASE_URL, engine: str = "live",
                  output_format: str = "auto", sample_rate: Optional[int] = None,
                  aiohttp_session: Optional[aiohttp.ClientSession] = None, max_retries: int = 3,
                  backoff_base: float = 0.25, settings: Optional[ReadAloudTTSSettings] = None, **kwargs):
