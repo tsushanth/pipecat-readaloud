@@ -46,7 +46,7 @@ async def test_native_pcm24k_streams_aligned_frames(server, session):
     r = server.requests[0]
     assert r["native"] and r["format"] == "pcm_24000"
     assert r["headers"]["Authorization"] == f"Bearer {KEY}"
-    assert r["body"] == {"text": "hello", "voice": "default", "speed": 1.0, "format": "pcm_24000", "engine": "piper"}
+    assert r["body"] == {"text": "hello", "voice": "default", "speed": 1.0, "format": "pcm_24000", "engine": "live"}
 
 
 async def test_auto_format_8k_for_telephony(server, session):

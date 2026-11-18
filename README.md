@@ -35,7 +35,7 @@ async with aiohttp.ClientSession() as session:
     pipeline = Pipeline([transport.input(), stt, user_aggregator, llm, tts, transport.output(), assistant_aggregator])
 ```
 
-Constructor options: `base_url` (default `https://api.readaloudai.org`), `engine` (`piper` default, or `kokoro`),
+Constructor options: `base_url` (default `https://api.readaloudai.org`), `engine` (`live` default, the low-latency tier, or `studio`, the narration tier),
 `output_format` (`auto`, `pcm_24000`, `pcm_16000`, `pcm_8000`, `mulaw_8000`, `alaw_8000`), `max_retries`,
 `aiohttp_session`. `auto` asks for 8 kHz when the pipeline runs at 8 kHz and 24 kHz otherwise, and lets Pipecat
 resample. `voice` and `speed` can be changed at runtime with a `TTSUpdateSettingsFrame`. The earlier class name
