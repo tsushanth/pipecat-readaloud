@@ -55,10 +55,16 @@ async def test_auto_format_8k_for_telephony(server, session):
     assert all(f.sample_rate == 8000 for f in frames if isinstance(f, TTSAudioRawFrame))
 
 
-async def test_auto_16k_asks_24k_and_resamples(server, session):
+async def test_auto_16k_asks_24k_and_keeps_duration(server, session):
+    # Auto asks the native 24 kHz stream for a 16 kHz pipeline. Where the conversion to 16 kHz happens depends on the
+    # Pipecat version (inside run_tts before 1.16, in the service's audio-context playback after), so a frame here
+    # carries either rate. What must hold in both: the frames are tagged with the rate their bytes really have.
     frames = await collect(make(server, session, rate=16000))
     assert server.requests[0]["format"] == "pcm_24000"
-    assert all(f.sample_rate == 16000 for f in frames if isinstance(f, TTSAudioRawFrame))
+    audio = [f for f in frames if isinstance(f, TTSAudioRawFrame)]
+    assert audio and all(f.sample_rate in (16000, 24000) for f in audio)
+    seconds = sum(len(f.audio) / 2 / f.sample_rate for f in audio)
+    assert seconds == pytest.approx((641 + 2 * 3200) / 2 / 24000, rel=0.1)
 
 
 async def test_explicit_pcm16k_uses_compat_endpoint(server, session):
